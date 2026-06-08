@@ -1,0 +1,12 @@
+# render intermediates and outputs
+frames/
+output/*.png
+output/*.mp4
+*.log
+/tmp/
+__pycache__/
+*.pyc
+
+# keep the dir markers
+!frames/.gitkeep
+!output/.gitkeep
