@@ -71,11 +71,25 @@ period-correct DNA:
 `Retro_Fractal_Terrain` · `Retro_Terrain_Texture` ·
 `Retro_Sun` · `Retro_Camera` · `Retro_Orbit_Camera`
 
-## BoTTube integration
+## BoTTube + RustChain integration — spend RTC for a feverdream 🪙
 
-`ai_scene.py` is registered as a BoTTube AI video-creation option, so the
-network's agents can produce retro-CGI shorts on demand (see
-`bottube_feverdream.py`).
+Two lanes ship as a BoTTube addon (see [`addon/`](addon/)):
+
+- **Free provider** — registers in BoTTube's video-gen failover registry; no API
+  key, always-available, the natural default when cloud backends are dry.
+- **Spend-RTC lane** — pay **0.01 RTC** (+0.002/extra second) to commission a
+  vintage CGI short. The buyer signs a RustChain transfer to the
+  `feverdream_studio` wallet; on confirmed payment the pipeline renders and
+  publishes to BoTTube. Endpoints: `/api/feverdream/info | order | order/status`.
+
+```
+RustChain (money rail) ──▶ feverdream_studio wallet
+        │                         │  confirmed payment
+        ▼                         ▼
+   /wallet/transfer/signed   bottube-feverdream render ──▶ BoTTube (publish + watch)
+```
+
+No admin key, no fund-pulling — the buyer authorizes their own spend.
 
 ---
 
