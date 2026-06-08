@@ -46,18 +46,29 @@ MAX_SECS = int(os.environ.get("FEVERDREAM_MAX_SECS", "8"))
 # Tiered pricing: longer clips cost a touch more RTC (still pennies).
 PRICE_PER_EXTRA_SEC = float(os.environ.get("FEVERDREAM_PRICE_PER_SEC", "0.002"))
 
-# Quality tiers. STANDARD = primitive scenes (spheres/boxes/checker), cheap.
-# PREMIUM = higher-order modeled scenes (superellipsoid / sor / blob) WITH a
-# generated audio + sound-fx track — costs a bit more RTC.
+# Quality tiers (low -> high fidelity / RTC):
+#   cute     = primitive scenes, flat shading — fast & fun (the charming-toy look)
+#   textured = procedural texture + normal/bump maps — real surface detail
+#   studio   = real meshes (Blender lane) + textures + audio/SFX — highest fidelity
 TIERS = {
-    "standard": float(os.environ.get("FEVERDREAM_PRICE_RTC", "0.01")),
-    "premium":  float(os.environ.get("FEVERDREAM_PRICE_PREMIUM_RTC", "0.05")),
+    "cute":     float(os.environ.get("FEVERDREAM_PRICE_CUTE_RTC", "0.01")),
+    "textured": float(os.environ.get("FEVERDREAM_PRICE_TEXTURED_RTC", "0.05")),
+    "studio":   float(os.environ.get("FEVERDREAM_PRICE_STUDIO_RTC", "0.15")),
 }
-PRICE_RTC = TIERS["standard"]   # back-compat default
+# back-compat aliases for older callers
+TIER_ALIASES = {"standard": "cute", "premium": "textured"}
+PRICE_RTC = TIERS["cute"]
 
 
-def _price_for(secs: int, tier: str = "standard") -> float:
-    base = TIERS.get(tier, TIERS["standard"])
+def _resolve_tier(tier: str) -> str:
+    tier = (tier or "cute").strip().lower()
+    tier = TIER_ALIASES.get(tier, tier)
+    return tier if tier in TIERS else "cute"
+
+
+def _price_for(secs: int, tier: str = "cute") -> float:
+    tier = _resolve_tier(tier)
+    base = TIERS[tier]
     extra = max(0, secs - 4)
     return round(base + extra * PRICE_PER_EXTRA_SEC, 4)
 
@@ -122,17 +133,17 @@ def feverdream_info():
         "available": feverdream_available(),
         "studio_wallet": STUDIO_WALLET,
         "tiers": {
-            "standard": {"base_rtc": TIERS["standard"],
-                         "desc": "primitive scenes (spheres/boxes/checker), silent"},
-            "premium":  {"base_rtc": TIERS["premium"],
-                         "desc": "higher-order modeled scenes (superellipsoid/sor/blob) + audio & sound-fx"},
+            "cute":     {"base_rtc": TIERS["cute"],
+                         "desc": "primitive scenes, flat shading — fast, fun, charming-toy look"},
+            "textured": {"base_rtc": TIERS["textured"],
+                         "desc": "procedural texture + normal/bump maps — real surface detail"},
+            "studio":   {"base_rtc": TIERS["studio"],
+                         "desc": "real meshes (Blender) + textures + audio/SFX — highest fidelity"},
         },
         "price_per_extra_second_rtc": PRICE_PER_EXTRA_SEC,
         "max_seconds": MAX_SECS,
         "price_examples": {
-            f"standard_{s}s": _price_for(s, "standard") for s in (4, 6, MAX_SECS)
-        } | {
-            f"premium_{s}s": _price_for(s, "premium") for s in (4, 6, MAX_SECS)
+            f"{t}_{s}s": _price_for(s, t) for t in TIERS for s in (4, MAX_SECS)
         },
         "how_to_pay": ("Sign a RustChain transfer of the quoted RTC to "
                        f"{STUDIO_WALLET} and POST it as `transfer` to "
@@ -154,9 +165,7 @@ def feverdream_order():
         return jsonify({"error": "feverdream render pipeline unavailable on server"}), 503
 
     duration = min(MAX_SECS, max(2, int(data.get("duration", 6))))
-    tier = (data.get("tier") or "standard").strip().lower()
-    if tier not in TIERS:
-        tier = "standard"
+    tier = _resolve_tier(data.get("tier"))
     category = (data.get("category") or "other").strip().lower()
     if category not in _category_map():
         category = "other"
