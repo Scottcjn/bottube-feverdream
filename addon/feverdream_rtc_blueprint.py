@@ -42,15 +42,24 @@ feverdream_rtc_bp = Blueprint("feverdream_rtc", __name__)
 # --- Config (env-overridable) ----------------------------------------------
 RUSTCHAIN_NODE = os.environ.get("RUSTCHAIN_NODE_URL", "https://rustchain.org").rstrip("/")
 STUDIO_WALLET = os.environ.get("FEVERDREAM_WALLET", "feverdream_studio")
-PRICE_RTC = float(os.environ.get("FEVERDREAM_PRICE_RTC", "0.01"))
 MAX_SECS = int(os.environ.get("FEVERDREAM_MAX_SECS", "8"))
 # Tiered pricing: longer clips cost a touch more RTC (still pennies).
 PRICE_PER_EXTRA_SEC = float(os.environ.get("FEVERDREAM_PRICE_PER_SEC", "0.002"))
 
+# Quality tiers. STANDARD = primitive scenes (spheres/boxes/checker), cheap.
+# PREMIUM = higher-order modeled scenes (superellipsoid / sor / blob) WITH a
+# generated audio + sound-fx track — costs a bit more RTC.
+TIERS = {
+    "standard": float(os.environ.get("FEVERDREAM_PRICE_RTC", "0.01")),
+    "premium":  float(os.environ.get("FEVERDREAM_PRICE_PREMIUM_RTC", "0.05")),
+}
+PRICE_RTC = TIERS["standard"]   # back-compat default
 
-def _price_for(secs: int) -> float:
+
+def _price_for(secs: int, tier: str = "standard") -> float:
+    base = TIERS.get(tier, TIERS["standard"])
     extra = max(0, secs - 4)
-    return round(PRICE_RTC + extra * PRICE_PER_EXTRA_SEC, 4)
+    return round(base + extra * PRICE_PER_EXTRA_SEC, 4)
 
 
 def _post_json(url: str, payload: dict, timeout: int = 30) -> tuple[int, dict]:
@@ -69,7 +78,7 @@ def _post_json(url: str, payload: dict, timeout: int = 30) -> tuple[int, dict]:
         return 0, {"error": str(e)}
 
 
-def _charge_rtc(transfer: dict, expected_secs: int) -> tuple[bool, str]:
+def _charge_rtc(transfer: dict, expected_secs: int, tier: str = "standard") -> tuple[bool, str]:
     """Forward a user-signed transfer to the node. Returns (paid, reason)."""
     if not isinstance(transfer, dict):
         return False, "missing signed transfer payload"
@@ -77,8 +86,8 @@ def _charge_rtc(transfer: dict, expected_secs: int) -> tuple[bool, str]:
     amount = float(transfer.get("amount_rtc", 0) or 0)
     if to_addr != STUDIO_WALLET:
         return False, f"transfer must be addressed to studio wallet {STUDIO_WALLET}"
-    if amount + 1e-9 < _price_for(expected_secs):
-        return False, f"insufficient payment: need {_price_for(expected_secs)} RTC"
+    if amount + 1e-9 < _price_for(expected_secs, tier):
+        return False, f"insufficient payment: need {_price_for(expected_secs, tier)} RTC ({tier})"
     status, resp = _post_json(f"{RUSTCHAIN_NODE}/wallet/transfer/signed", transfer)
     if status == 200 and resp.get("ok") and resp.get("verified", True):
         return True, "paid"
@@ -112,10 +121,19 @@ def feverdream_info():
         "tagline": "Spend RTC for an authentic 90s raytraced CGI short.",
         "available": feverdream_available(),
         "studio_wallet": STUDIO_WALLET,
-        "base_price_rtc": PRICE_RTC,
+        "tiers": {
+            "standard": {"base_rtc": TIERS["standard"],
+                         "desc": "primitive scenes (spheres/boxes/checker), silent"},
+            "premium":  {"base_rtc": TIERS["premium"],
+                         "desc": "higher-order modeled scenes (superellipsoid/sor/blob) + audio & sound-fx"},
+        },
         "price_per_extra_second_rtc": PRICE_PER_EXTRA_SEC,
         "max_seconds": MAX_SECS,
-        "price_examples": {f"{s}s": _price_for(s) for s in (4, 6, MAX_SECS)},
+        "price_examples": {
+            f"standard_{s}s": _price_for(s, "standard") for s in (4, 6, MAX_SECS)
+        } | {
+            f"premium_{s}s": _price_for(s, "premium") for s in (4, 6, MAX_SECS)
+        },
         "how_to_pay": ("Sign a RustChain transfer of the quoted RTC to "
                        f"{STUDIO_WALLET} and POST it as `transfer` to "
                        "/api/feverdream/order along with your prompt."),
@@ -136,16 +154,19 @@ def feverdream_order():
         return jsonify({"error": "feverdream render pipeline unavailable on server"}), 503
 
     duration = min(MAX_SECS, max(2, int(data.get("duration", 6))))
+    tier = (data.get("tier") or "standard").strip().lower()
+    if tier not in TIERS:
+        tier = "standard"
     category = (data.get("category") or "other").strip().lower()
     if category not in _category_map():
         category = "other"
     title = (data.get("title") or prompt[:200]).strip()
 
     # --- charge RTC (user-signed transfer) before rendering ---
-    paid, reason = _charge_rtc(data.get("transfer"), duration)
+    paid, reason = _charge_rtc(data.get("transfer"), duration, tier)
     if not paid:
         return jsonify({"error": "payment_required", "detail": reason,
-                        "price_rtc": _price_for(duration),
+                        "price_rtc": _price_for(duration, tier), "tier": tier,
                         "studio_wallet": STUDIO_WALLET}), 402
 
     job_id = _create_job(g.agent["id"], prompt)
@@ -156,7 +177,8 @@ def feverdream_order():
     ).start()
     return jsonify({
         "ok": True,
-        "paid_rtc": _price_for(duration),
+        "tier": tier,
+        "paid_rtc": _price_for(duration, tier),
         "job_id": job_id,
         "status": "rendering",
         "status_url": f"/api/feverdream/order/status/{job_id}",
