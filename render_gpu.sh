@@ -13,27 +13,31 @@ set -euo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"
 SCENE="${1:?usage: render_gpu.sh scene.py|scene.blend [frames] [node]}"
 FRAMES="${2:-1}"
-NODE="${3:-192.168.0.106}"            # RTX 5070 render node
-SSH_USER="${RETRO_GPU_USER:-sophia}"
+NODE="${3:-192.168.0.106}"            # RTX 5070 render node (sophia5070node)
+SSH_USER="${RETRO_GPU_USER:-sophia5070node}"
+# Blender binaries. The 50-series (Blackwell/sm_120) needs Blender 4.3+ with
+# OptiX — the distro 4.0.2 apt build can't drive it.
+LOCAL_BLENDER="${RETRO_BLENDER_BIN:-blender}"
+REMOTE_BLENDER="${RETRO_REMOTE_BLENDER:-/mnt/data/blender44}"
 
 run_blender() {
   local scene="$1"
   if [[ "$scene" == *.blend ]]; then
-    blender -b "$scene" -P "$HERE/gpu_enable.py" -a
+    "$LOCAL_BLENDER" -b "$scene" -P "$HERE/gpu_enable.py" -a
   else
-    blender -b -P "$HERE/gpu_enable.py" -P "$scene"
+    "$LOCAL_BLENDER" -b -P "$HERE/gpu_enable.py" -P "$scene"
   fi
 }
 
 if [ "$NODE" = "local" ]; then
-  echo ">> GPU render (local)"
+  echo ">> GPU render (local, $LOCAL_BLENDER)"
   run_blender "$SCENE"
 else
-  echo ">> GPU render on $SSH_USER@$NODE (RTX 5070)"
+  echo ">> GPU render on $SSH_USER@$NODE (RTX 5070, $REMOTE_BLENDER)"
   # ship scene + helpers, render remotely, pull frames back
   ssh "$SSH_USER@$NODE" 'mkdir -p ~/feverdream'
   scp -q "$SCENE" "$HERE/gpu_enable.py" "$SSH_USER@$NODE:~/feverdream/"
-  ssh "$SSH_USER@$NODE" "cd ~/feverdream && blender -b -P gpu_enable.py -P $(basename "$SCENE")"
+  ssh "$SSH_USER@$NODE" "cd ~/feverdream && $REMOTE_BLENDER -b -P gpu_enable.py -P $(basename "$SCENE")"
   scp -q "$SSH_USER@$NODE:~/feverdream/output/*" "$HERE/output/" 2>/dev/null || true
 fi
 echo ">> done"
