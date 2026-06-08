@@ -88,3 +88,92 @@
     translate <cx,0,cz>
   }
 #end
+
+#declare WC_Cream = texture { pigment { rgb <0.85,0.78,0.60> } finish { ambient 0.3 diffuse 0.6 } }
+#declare WC_DragonRed  = Tex_Worn(rgb <0.70,0.12,0.10>, rgb <0.50,0.08,0.06>)
+#declare WC_DragonWing = Tex_Worn(rgb <0.55,0.10,0.08>, rgb <0.40,0.06,0.05>)
+
+// ---- FARM: cream hut with a thatch cone roof ----
+#macro Farm(cx, cz)
+  union {
+    box { <-1,0,-0.8>, <1,1.1,0.8> texture { WC_Cream } }
+    cone { <0,1.0,0>, 1.5, <0,2.2,0>, 0.0 texture { WC_Wood } }
+    box { <-0.3,0,-0.85>, <0.3,0.72,-0.78> texture { WC_Wood } }
+    translate <cx,0,cz>
+  }
+#end
+
+// ---- BARRACKS: bigger building, red roof + banner ----
+#macro Barracks(cx, cz)
+  union {
+    box { <-1.8,0,-1.2>, <1.8,1.8,1.2> texture { WC_Wood } }
+    box { <-2.0,1.8,-1.4>, <2.0,2.0,1.4> texture { WC_Stone } }
+    cone { <0,1.9,0>, 2.5, <0,3.5,0>, 0.0 texture { WC_Red } }
+    box { <-0.5,0,-1.25>, <0.5,1.25,-1.15> texture { WC_Stone } }
+    cylinder { <-1.6,2.0,-1.25>, <-1.6,3.3,-1.25>, 0.05 texture { WC_Wood } }
+    box { <-1.6,2.5,-1.27>, <-0.85,3.15,-1.23> texture { WC_Red } }
+    translate <cx,0,cz>
+  }
+#end
+
+// ---- CATAPULT: wheeled siege engine with a throwing arm + boulder ----
+#macro Catapult(cx)
+  union {
+    box { <-0.6,0.35,-0.45>, <0.6,0.6,0.45> texture { WC_Wood } }
+    cylinder { <-0.65,0.35,-0.5>, <-0.65,0.35,-0.4>, 0.32 texture { WC_Wood } }
+    cylinder { < 0.65,0.35,-0.5>, < 0.65,0.35,-0.4>, 0.32 texture { WC_Wood } }
+    cylinder { <-0.65,0.35,0.4>, <-0.65,0.35,0.5>, 0.32 texture { WC_Wood } }
+    cylinder { < 0.65,0.35,0.4>, < 0.65,0.35,0.5>, 0.32 texture { WC_Wood } }
+    cylinder { <-0.3,0.6,0>, <0,1.5,0.1>, 0.07 texture { WC_Wood } }
+    cylinder { < 0.3,0.6,0>, <0,1.5,0.1>, 0.07 texture { WC_Wood } }
+    cylinder { <0.5,0.6,0.3>, <-0.3,1.75,-0.6>, 0.08 texture { WC_Wood } }
+    sphere { <-0.3,1.75,-0.6>, 0.22 texture { WC_Stone } }
+    translate <cx,0,0>
+  }
+#end
+
+// ---- PEON: small green orc worker with a pickaxe ----
+#macro Peon(cx)
+  union {
+    blob {
+      threshold 0.6
+      sphere { <0,1.0,0>, 0.5, 1.1 } sphere { <0,0.6,0>, 0.42, 1.0 }
+      cylinder { <-0.35,1.0,0>, <-0.5,0.5,0.1>, 0.16, 0.9 }
+      cylinder { < 0.35,1.0,0>, < 0.5,0.5,0.1>, 0.16, 0.9 }
+      cylinder { <-0.2,0.55,0>, <-0.22,0.08,0>, 0.18, 0.9 }
+      cylinder { < 0.2,0.55,0>, < 0.22,0.08,0>, 0.18, 0.9 }
+      texture { WC_OrcGrn }
+    }
+    sphere { <0,1.45,-0.05>, 0.32 texture { WC_OrcGrn } }
+    sphere { <-0.1,1.45,-0.32>, 0.05 texture { pigment{rgb<1,0.8,0.2>} finish{ambient 1.3} } }
+    sphere { < 0.1,1.45,-0.32>, 0.05 texture { pigment{rgb<1,0.8,0.2>} finish{ambient 1.3} } }
+    cylinder { <0.5,0.2,0.1>, <0.5,1.7,0.1>, 0.05 texture { WC_Wood } }
+    box { <0.34,1.58,0.0>, <0.78,1.70,0.2> texture { WC_Steel } }
+    translate <cx,0,0>
+  }
+#end
+
+// ---- DRAGON: red winged dragon (place flying: cx,cy,cz) ----
+#macro Dragon(cx, cy, cz)
+  union {
+    blob {
+      threshold 0.6
+      sphere { <0,0,0>, 0.7, 1.1 }
+      sphere { <0,0.15,-1.0>, 0.55, 1.0 }
+      cylinder { <0,0.15,-1.3>, <0.1,0.9,-2.3>, 0.28, 0.9 }
+      sphere { <0.15,1.05,-2.6>, 0.4, 1.0 }
+      cylinder { <0,0,0.9>, <0.1,0.4,2.6>, 0.16, 0.85 }
+      sphere { <0.1,0.5,2.85>, 0.18, 1.0 }
+      cylinder { <-0.45,-0.3,-0.4>, <-0.7,-1.1,-0.4>, 0.16, 0.85 }
+      cylinder { < 0.45,-0.3,-0.4>, < 0.7,-1.1,-0.4>, 0.16, 0.85 }
+      texture { WC_DragonRed }
+    }
+    superellipsoid { <0.2,0.8> scale <1.6,0.04,1.0> rotate z*32 rotate x*-12 translate <-1.4,0.95,-0.3> texture { WC_DragonWing } }
+    superellipsoid { <0.2,0.8> scale <1.6,0.04,1.0> rotate z*-32 rotate x*-12 translate < 1.4,0.95,-0.3> texture { WC_DragonWing } }
+    cone { <0.0,1.4,-2.6>, 0.06, <-0.1,1.75,-2.5>, 0.0 texture { pigment{rgb 0.9} } }
+    cone { <0.3,1.4,-2.6>, 0.06, <0.4,1.75,-2.5>, 0.0 texture { pigment{rgb 0.9} } }
+    sphere { <0.0,1.1,-2.95>, 0.06 texture { pigment{rgb<1,0.8,0.1>} finish{ambient 1.6} } }
+    sphere { <0.3,1.1,-2.95>, 0.06 texture { pigment{rgb<1,0.8,0.1>} finish{ambient 1.6} } }
+    translate <cx,cy,cz>
+  }
+#end
