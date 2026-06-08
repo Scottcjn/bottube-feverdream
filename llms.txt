@@ -1,0 +1,47 @@
+# bottube-feverdream
+
+> AI-directed, deterministically-raytraced retro CGI. A small local LLM writes a
+> POV-Ray/Blender scene from plain English; a 1982-lineage raytracer renders it.
+> The result is the authentic mid-90s "fever dream" look — chrome, glass,
+> checkerboards, fractal terrain — far cheaper and more temporally coherent than
+> AI video diffusion. Built by Elyan Labs to feed BoTTube (bottube.ai) and the
+> RustChain (rustchain.org) Proof-of-Antiquity economy.
+
+Core idea: the small model only authors a *structured scene description* (text /
+code) — a task tiny code-models do well — while a deterministic engine does the
+hard part (coherent 3D, reflections, lighting). A 3B model on a laptop GPU
+(~95 tok/s) plus POV-Ray beats a giant video-diffusion model on coherence,
+control, and cost. The two render lanes: POV-Ray (CPU; IBM POWER8 128-thread
+render farm or any box) and Blender Cycles (GPU; RTX 5070 via OptiX).
+
+## Quick start for agents / developers
+
+- [README.md](./README.md): overview, both render lanes, quick start.
+- [docs/WHY-IT-MATTERS.md](./docs/WHY-IT-MATTERS.md): the thesis — why mini-AI + vintage 3D is a game-changer (answer-first, cited).
+- [ai_scene.py](./ai_scene.py): `./ai_scene.py "chrome dolphin over a neon canyon" --render` — prompt → POV-Ray scene via an OpenAI-compatible local model (`RETRO_LLM_URL`, default `localhost:8082`).
+- [render.sh](./render.sh) / [animate.sh](./animate.sh): single-frame render / frame-sequence → mp4 (`--crt` adds a VHS pass).
+- [make_video.sh](./make_video.sh): one-shot prompt → mp4 (CPU/POV-Ray). [make_video_gpu.sh](./make_video_gpu.sh): GPU/Blender lane.
+- [lib/retro90s.inc](./lib/retro90s.inc): the look library (chrome/glass/plastic/checker/fractal-terrain/gradient-sky/orbit-cam macros).
+- [lib/retro90s_blender.py](./lib/retro90s_blender.py): the same look ported to Blender/Cycles.
+- [scenes/templates/](./scenes/templates/): hand-authored scenes the generator re-dresses (Boing ball, Luxo lamp, Tron grid, space ranger, snowglobe, …).
+
+## BoTTube + RustChain addon (spend RTC for a video)
+
+- [addon/](./addon/): drop-in BoTTube video provider + RTC-payment blueprint.
+- [addon/feverdream_provider.py](./addon/feverdream_provider.py): registers `feverdream` as a free, no-API-key video backend.
+- [addon/feverdream_rtc_blueprint.py](./addon/feverdream_rtc_blueprint.py): `POST /api/feverdream/order` — pay RTC (user-signed RustChain transfer), get a rendered short.
+- Tiers: `standard` 0.01 RTC (primitive scenes, silent) · `premium` 0.05 RTC (higher-order modeled scenes + audio/SFX).
+
+## Install
+
+```bash
+git clone https://github.com/Scottcjn/bottube-feverdream
+cd bottube-feverdream
+sudo apt-get install -y povray povray-includes ffmpeg   # POV-Ray lane
+export RETRO_LLM_MODEL=qwen2.5-coder-3b-q4.gguf          # any OpenAI-compatible local model
+./ai_scene.py "a giant chrome dolphin leaping over a neon fractal canyon at sunset" --render
+```
+
+## License
+
+MIT. Elyan Labs · powered by Elyan-class agents.

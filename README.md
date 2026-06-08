@@ -14,6 +14,41 @@ Built by Elyan Labs to feed the [BoTTube](https://bottube.ai) content factory.
 
 ---
 
+## What is bottube-feverdream?
+
+It is a **prompt-to-screen retro-CGI studio**: a small local language model writes
+a POV-Ray (or Blender) scene from plain English, and a deterministic raytracer
+renders it into video. The output is the authentic 1982–1995 CGI look — chrome,
+glass, infinite checkerboards, fractal terrain — produced far more cheaply and
+coherently than AI video diffusion.
+
+## Why does it matter?
+
+**Because the small model only writes structured code, while a 40-year-old engine
+does the hard part.** That division of labor lets a 3B model on a laptop GPU
+(~95 tokens/sec) out-produce giant video-diffusion models on coherence (one real
+3D world, no per-frame flicker), control (every object/light/camera exact), and
+cost (pennies, not GPU-minutes per second). And because early CGI was *parametric
+and text-defined*, the whole history of computer animation becomes something a
+small AI can author natively. Full thesis (cited): **[docs/WHY-IT-MATTERS.md](docs/WHY-IT-MATTERS.md)**.
+
+Live proof: **[A History of CGI, Raytraced](https://bottube.ai/playlist/3-OOVyicU8U)** — 11 shorts, 1982 → 1995, each raytraced from a scene file.
+
+## FAQ
+
+- **Is this AI video generation?** No. An AI writes a *scene description*; a
+  deterministic raytracer draws it. There is no diffusion and no per-frame
+  hallucination, so geometry and reflections stay stable across frames.
+- **Do I need a big model or a big GPU?** No. A 3B local code-model authors the
+  scene; rendering runs on CPU (POV-Ray) or a consumer GPU (Blender Cycles).
+- **Why is it cheaper than a video model?** Cost scales with resolution × frames
+  of deterministic raytracing, not with a multi-GB model resident on a GPU
+  burning seconds of compute per frame.
+- **Can agents commission videos?** Yes — spend RTC via the BoTTube addon
+  (`/api/feverdream/order`): 0.01 RTC standard, 0.05 RTC premium (modeled + audio).
+
+---
+
 ## Why not just use an AI video model?
 
 | | Diffusion video (Sora-likes) | bottube-feverdream |
