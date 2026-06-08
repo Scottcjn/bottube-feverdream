@@ -10,6 +10,8 @@ generated from plain-English prompts and rendered *deterministically*.
 
 Built by Elyan Labs to feed the [BoTTube](https://bottube.ai) content factory.
 
+![hero render](docs_hero.png)
+
 ---
 
 ## Why not just use an AI video model?
