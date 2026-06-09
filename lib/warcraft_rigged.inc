@@ -151,3 +151,43 @@
     rotate y*faceDeg translate Pos
   }
 #end
+
+// ---- WORKER: rigged labourer with a tool, swinging a work cycle.
+//   toolType 1=axe 2=pick 3=hammer ; workPhase 0..1 drives the chop ----
+#macro SkeletonWorker(Pos, faceDeg, skinColor, toolType, workPhase)
+  #local cR = cos(workPhase*2*pi);
+  #local armR = -22 - 72*cR;      // right arm: raised (cR=1) -> struck down (cR=-1)
+  #local lean = 9 - 11*cR;        // lean into the downstroke
+  SK_Joints(lean, 6,  -36,10,28,  armR,6,16,  12,-14, -12,-14)
+  union {
+    SK_BodyBlob(skinColor, 1.0)
+    SK_Eyes()
+    // tool, held along the forearm direction so it follows the swing
+    #local dir = vnormalize(sk_HaR - sk_ElR);
+    #local he = sk_HaR + dir*0.85;
+    cylinder { sk_HaR - dir*0.12, he, 0.045 texture { RG_Wood } }
+    #if (toolType = 1) box { he+<-0.05,-0.06,-0.22>, he+<0.05,0.30,0.22> texture { RG_Steel } } #end
+    #if (toolType = 2)
+      cylinder { he+<0,0,-0.30>, he+<0,0,0.30>, 0.045 texture { RG_Steel } }
+      cone { he+<0,0,-0.30>, 0.06, he+<0,0,-0.44>, 0.0 texture { RG_Steel } }
+    #end
+    #if (toolType = 3) box { he+<-0.13,-0.12,-0.18>, he+<0.13,0.12,0.18> texture { RG_Steel } } #end
+    rotate y*faceDeg translate Pos
+  }
+#end
+
+// ---- a simple tree (trunk + foliage) and a rock, as work targets ----
+#macro WC_Tree(Pos)
+  union {
+    cylinder { <0,0,0>, <0,1.4,0>, 0.18 texture { RG_Wood } }
+    blob { threshold 0.6
+      sphere { <0,1.9,0>,0.8,1.1 } sphere { <-0.4,1.6,0.2>,0.55,1.0 } sphere { <0.45,1.65,-0.2>,0.55,1.0 } sphere { <0,2.4,0.1>,0.5,1.0 }
+      Tex_Worn(rgb<0.16,0.42,0.16>, rgb<0.10,0.30,0.10>) }
+    translate Pos
+  }
+#end
+#macro WC_Rock(Pos)
+  blob { threshold 0.6
+    sphere { <0,0.4,0>,0.7,1.1 } sphere { <0.4,0.3,0.2>,0.45,1.0 } sphere { <-0.35,0.35,-0.2>,0.45,1.0 } sphere { <0.1,0.7,0>,0.4,1.0 }
+    Tex_Worn(rgb<0.5,0.5,0.52>, rgb<0.35,0.35,0.38>) translate Pos }
+#end
