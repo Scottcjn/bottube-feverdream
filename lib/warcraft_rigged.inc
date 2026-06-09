@@ -103,3 +103,33 @@
     rotate y*faceDeg translate Pos
   }
 #end
+
+#declare RG_Horse = Tex_Worn(rgb <0.46,0.30,0.17>, rgb <0.32,0.20,0.10>)
+#declare RG_HrDk  = Tex_Worn(rgb <0.22,0.14,0.08>, rgb <0.14,0.09,0.05>)
+
+// ---- HORSE: blob quadruped (faces -z). gallop (0..1) animates the legs ----
+#macro Horse(Pos, faceDeg, gallop)
+  #local g = gallop*2*pi;
+  #local fL = sin(g)*22;  #local fR = sin(g+pi)*22;   // front legs swing
+  #local bL = sin(g+pi)*22; #local bR = sin(g)*22;    // back legs (diagonal)
+  union {
+    blob {
+      threshold 0.6
+      sphere { <0,1.55,0>, 0.56, 1.1 } sphere { <0,1.55,-0.7>, 0.5, 1.0 } sphere { <0,1.55,0.72>, 0.5, 1.0 }
+      cylinder { <0,1.65,-1.05>, <0,2.45,-1.65>, 0.28, 0.9 } sphere { <0,2.55,-1.82>, 0.30, 1.0 }
+      cylinder { <0,2.5,-1.9>, <0,2.35,-2.28>, 0.15, 0.8 }
+      cylinder { <-0.34,1.45,-0.85> + vrotate(<0,0,0>,<0,0,0>), <-0.40,0.12,-0.85> + <fL*0.01,0,0>, 0.15, 0.85 }
+      cylinder { < 0.34,1.45,-0.85>, < 0.40,0.12,-0.85> + <fR*0.01,0,0>, 0.15, 0.85 }
+      cylinder { <-0.34,1.45,0.85>, <-0.40,0.12,0.85> + <bL*0.01,0,0>, 0.15, 0.85 }
+      cylinder { < 0.34,1.45,0.85>, < 0.40,0.12,0.85> + <bR*0.01,0,0>, 0.15, 0.85 }
+      texture { RG_Horse }
+    }
+    cone { <0,1.7,1.05>, 0.13, <0,0.9,1.7>, 0.0 texture { RG_HrDk } }       // tail
+    cylinder { <0,2.5,-1.45>, <0,2.05,-0.9>, 0.10 texture { RG_HrDk } }     // mane
+    superellipsoid { <0.3,0.3> scale <0.42,0.14,0.5> translate <0,1.92,0.05> texture { RG_Leather } } // saddle
+    sphere { <-0.13,2.6,-2.02>, 0.05 texture { pigment{rgb 0.05} } } sphere { <0.13,2.6,-2.02>, 0.05 texture { pigment{rgb 0.05} } }
+    cone { <-0.1,2.78,-1.78>, 0.05, <-0.12,2.95,-1.78>, 0.0 texture { RG_Horse } } // ears
+    cone { < 0.1,2.78,-1.78>, 0.05, < 0.12,2.95,-1.78>, 0.0 texture { RG_Horse } }
+    rotate y*faceDeg translate Pos
+  }
+#end
