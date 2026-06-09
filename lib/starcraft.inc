@@ -83,16 +83,32 @@
   }
 #end
 
-// ---- BATTLECRUISER: big flying Terran capital ship ----
+// ---- BATTLECRUISER: Behemoth-class Terran capital ship ----
+// Bow (-z): big rounded command bridge + Yamato nose dish. Stern (+z): 3 engine
+// nozzles. Long chunky industrial hull, swept side sponsons. (Pos, faceDeg)
 #macro Battlecruiser(Pos, faceDeg)
   union {
-    superellipsoid { <0.4,0.3> scale <1.3,0.9,3.4> translate <0,0,0> texture { SC_Steel } }  // hull
-    superellipsoid { <0.4,0.4> scale <0.8,0.6,1.0> translate <0,0.7,1.2> texture { SC_Steel } } // upper bridge
-    box { <-0.5,0.9,1.0>, <0.5,1.3,1.8> texture { SC_Dark } }       // bridge tower
-    box { <-2.2,-0.2,-0.5>, <-1.2,0.2,1.2> texture { SC_Steel } } box { <1.2,-0.2,-0.5>, <2.2,0.2,1.2> texture { SC_Steel } } // wings
-    cylinder { <0,-0.1,3.2>, <0,-0.1,3.7>, 0.4 texture { SC_EBlue } }           // engine glow (rear +z)
-    cylinder { <-0.8,-0.1,3.1>, <-0.8,-0.1,3.5>, 0.25 texture { SC_EBlue } } cylinder { <0.8,-0.1,3.1>, <0.8,-0.1,3.5>, 0.25 texture { SC_EBlue } }
-    cylinder { <0,0.4,-3.4>, <0,0.4,-3.9>, 0.12 texture { SC_Steel } } // forward laser battery
+    // --- main hull: fat amidships, tapering toward the bow ---
+    superellipsoid { <0.3,0.22> scale <1.5,1.05,2.5> translate <0,0,0.7> texture { SC_Steel } }   // aft main body
+    superellipsoid { <0.3,0.30> scale <1.05,0.8,1.9> translate <0,0,-1.9> texture { SC_Steel } }  // forward hull (tapered)
+    box { <-0.85,-1.0,-2.0>, <0.85,-0.15,2.6> texture { SC_Dark } }                                // ventral keel
+    box { <-0.3,1.0,-0.4>, <0.3,1.35,1.6> texture { SC_Dark } }                                    // dorsal spine
+    // --- signature command bridge: big rounded "head" sitting high & forward ---
+    superellipsoid { <0.6,0.6> scale <1.05,1.05,1.35> translate <0,1.55,-1.7> texture { SC_Steel } }
+    box { <-0.6,0.3,-2.2>, <0.6,1.45,-0.7> texture { SC_Dark } }                                   // bridge neck/shoulders
+    sphere { <0,1.7,-2.55>, 0.5 texture { SC_EBlue } }                                             // forward viewport glow
+    box { <-0.65,1.55,-2.4>, <0.65,1.95,-1.9> texture { SC_EBlue } }                               // bridge window band
+    // --- Yamato nose emitter: wide dish at the very bow ---
+    cone { <0,0.35,-3.45>, 0.72, <0,0.35,-3.95>, 0.46 texture { SC_Steel } }                       // emitter housing
+    disc { <0,0.35,-3.97>, z, 0.42 texture { SC_EOrange } }                                        // emitter face glow
+    // --- swept side sponsons / fins (mid-hull) ---
+    prism { linear_sweep linear_spline -0.2,0.2, 5, <-1.0,-0.4>,<-2.3,0.6>,<-2.3,1.6>,<-1.0,1.2>,<-1.0,-0.4> texture { SC_Steel } } // port wing
+    prism { linear_sweep linear_spline -0.2,0.2, 5, < 1.0,-0.4>,< 2.3,0.6>,< 2.3,1.6>,< 1.0,1.2>,< 1.0,-0.4> texture { SC_Steel } } // stbd wing
+    // --- stern engine block + 3 thruster nozzles ---
+    box { <-1.15,-0.35,2.4>, <1.15,0.95,3.15> texture { SC_Dark } }
+    cylinder { <-0.62,0.3,3.1>, <-0.62,0.3,3.65>, 0.32 texture { SC_EBlue } }
+    cylinder { < 0.0,0.35,3.1>, < 0.0,0.35,3.75>, 0.38 texture { SC_EBlue } }
+    cylinder { < 0.62,0.3,3.1>, < 0.62,0.3,3.65>, 0.32 texture { SC_EBlue } }
     rotate y*faceDeg translate Pos
   }
 #end

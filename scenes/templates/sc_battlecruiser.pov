@@ -54,4 +54,4 @@ sphere { <6, -34, 18>, 40
 // the capital ship, drifting slowly across as it fires
 YamatoCruiser(<10 - clock*4, 9, 9>, -90, charge, beam)
 
-camera { orthographic location <46,34,-40> look_at <1,4,9> right x*38 up y*22 }
+camera { orthographic location <30,15,-44> look_at <4,8,9> right x*40 up y*23 }
