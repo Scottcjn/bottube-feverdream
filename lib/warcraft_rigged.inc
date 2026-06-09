@@ -154,13 +154,16 @@
 
 // ---- WORKER: rigged labourer with a tool, swinging a work cycle.
 //   toolType 1=axe 2=pick 3=hammer ; workPhase 0..1 drives the chop ----
-#macro SkeletonWorker(Pos, faceDeg, skinColor, toolType, workPhase)
+// race: 0=plain, 1=orc peon (green, hunched, tusks), 2=human peasant (apron+cap)
+#macro SkeletonWorker(Pos, faceDeg, skinColor, toolType, workPhase, race)
   #local cR = cos(workPhase*2*pi);
   #local armR = -22 - 72*cR;      // right arm: raised (cR=1) -> struck down (cR=-1)
   #local lean = 9 - 11*cR;        // lean into the downstroke
+  #if (race = 1) #local lean = lean + 10; #end   // orcs hunch
+  #local bulk = 1.0; #if (race = 1) #local bulk = 1.22; #end
   SK_Joints(lean, 6,  -36,10,28,  armR,6,16,  12,-14, -12,-14)
   union {
-    SK_BodyBlob(skinColor, 1.0)
+    SK_BodyBlob(skinColor, bulk)
     SK_Eyes()
     // tool, held along the forearm direction so it follows the swing
     #local dir = vnormalize(sk_HaR - sk_ElR);
@@ -172,6 +175,50 @@
       cone { he+<0,0,-0.30>, 0.06, he+<0,0,-0.44>, 0.0 texture { RG_Steel } }
     #end
     #if (toolType = 3) box { he+<-0.13,-0.12,-0.18>, he+<0.13,0.12,0.18> texture { RG_Steel } } #end
+    // racial features
+    #if (race = 1)   // orc peon: tusks + glowing eyes
+      cone { sk_Head+<-0.12,-0.14,-0.28>, 0.05, sk_Head+<-0.14,0.07,-0.32>, 0.0 texture { pigment{rgb 0.95} } }
+      cone { sk_Head+< 0.12,-0.14,-0.28>, 0.05, sk_Head+< 0.14,0.07,-0.32>, 0.0 texture { pigment{rgb 0.95} } }
+      #local E = SK_HeadFront(-0.29);
+      sphere { E+<-0.12,0.03,0>, 0.06 texture { pigment{rgb<1,0.7,0.1>} finish{ambient 1.3} } }
+      sphere { E+< 0.12,0.03,0>, 0.06 texture { pigment{rgb<1,0.7,0.1>} finish{ambient 1.3} } }
+    #end
+    #if (race = 2)   // human peasant: apron + straw cap
+      #local TC = (sk_Pelvis + sk_Chest)/2;
+      box { TC+<-0.26,-0.5,-0.36>, TC+<0.26,0.35,-0.30> Tex_Worn(rgb<0.62,0.5,0.32>, rgb<0.5,0.4,0.24>) }
+      cone { sk_Head+<0,0.18,0>, 0.42, sk_Head+<0,0.34,0>, 0.18 Tex_Worn(rgb<0.85,0.74,0.4>, rgb<0.7,0.6,0.3>) }
+    #end
+    rotate y*faceDeg translate Pos
+  }
+#end
+
+// ---- HAULER: a worker walking while carrying a load (walk + cradle blend) ----
+#macro SkeletonHauler(Pos, faceDeg, skinColor, walkPhase, loadType, race)
+  #local c = walkPhase*2*pi;
+  #local hipL = sin(c)*26;  #local hipR = sin(c+pi)*26;
+  #local kL = -(0.5-0.5*cos(c))*40-6;  #local kR = -(0.5-0.5*cos(c+pi))*40-6;
+  #local bulk = 1.0; #if (race = 1) #local bulk = 1.22; #end
+  #local bob = 0.05*abs(sin(c));
+  // both arms forward + bent to cradle a load at the belly
+  SK_Joints(8, 0,  -62,10,55,  -62,10,55,  hipL,kL, hipR,kR)
+  union {
+    SK_BodyBlob(skinColor, bulk)
+    SK_Eyes()
+    #if (race = 1)
+      cone { sk_Head+<-0.12,-0.14,-0.28>, 0.05, sk_Head+<-0.14,0.07,-0.32>, 0.0 texture { pigment{rgb 0.95} } }
+      cone { sk_Head+< 0.12,-0.14,-0.28>, 0.05, sk_Head+< 0.14,0.07,-0.32>, 0.0 texture { pigment{rgb 0.95} } }
+    #end
+    // the load, cradled between the hands
+    #local LC = (sk_HaL + sk_HaR)/2 + <0,0.05,0>;
+    #if (loadType = 1)   // bundle of logs
+      cylinder { LC+<-0.3,0.08,-0.05>, LC+<0.3,0.08,-0.05>, 0.10 texture { RG_Wood } }
+      cylinder { LC+<-0.3,-0.05,0.02>, LC+<0.3,-0.05,0.02>, 0.10 texture { RG_Wood } }
+      cylinder { LC+<-0.3,0.02,0.12>, LC+<0.3,0.02,0.12>, 0.10 texture { RG_Wood } }
+    #else                // sack of gold
+      blob { threshold 0.6 sphere { LC,0.32,1.1 } sphere { LC+<0,0.18,0>,0.2,1.0 } Tex_Worn(rgb<0.55,0.42,0.2>, rgb<0.4,0.3,0.14>) }
+      sphere { LC+<0,0.34,0>, 0.05 texture { RG_Gold } }
+    #end
+    translate <0, bob, 0>
     rotate y*faceDeg translate Pos
   }
 #end

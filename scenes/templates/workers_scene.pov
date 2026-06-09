@@ -11,16 +11,16 @@ Farm(-8.5, 11)  Barracks(8.5, 12)
 #declare wp = clock;
 // peon chopping a tree (axe)
 WC_Tree(<-5,0,9.0>)
-SkeletonWorker(<-5,0,7.1>, 180, rgb <0.30,0.52,0.22>, 1, wp)
+SkeletonWorker(<-5,0,7.1>, 180, rgb <0.30,0.52,0.22>, 1, wp, 1)
 // peon mining a rock (pick)
 WC_Rock(<0,0,9.2>)
-SkeletonWorker(<0,0,7.4>, 180, rgb <0.30,0.52,0.22>, 2, wp+0.33)
+SkeletonWorker(<0,0,7.4>, 180, rgb <0.30,0.52,0.22>, 2, wp+0.33, 1)
 // peasant building a half-finished wall (hammer)
 union {
   box { <4.4,0,8.6>, <5.0,0.9,9.2> texture { WC_Stone } }
   box { <5.0,0,8.6>, <5.6,0.6,9.2> texture { WC_Stone } }
   box { <4.4,0.9,8.6>, <5.0,1.4,9.2> texture { WC_Stone } }
 }
-SkeletonWorker(<5,0,7.4>, 180, rgb <0.85,0.72,0.55>, 3, wp+0.66)
+SkeletonWorker(<5,0,7.4>, 180, rgb <0.85,0.72,0.55>, 3, wp+0.66, 2)
 
 Retro_Camera(<-2.5,3.2,-3.5>, <0.5,1.4,8.5>)
