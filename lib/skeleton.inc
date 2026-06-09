@@ -24,11 +24,14 @@
   #declare sk_ElR = sk_ShR + vrotate(<0,-SK_uarm,0>, <armRp,0,-armRr>);
   #declare sk_HaL = sk_ElL + vrotate(<0,-SK_farm,0>, <armLp+elbL,0, armLr>);
   #declare sk_HaR = sk_ElR + vrotate(<0,-SK_farm,0>, <armRp+elbR,0,-armRr>);
+  // optional leg abduction (splay out to the sides) — set `sk_splay` before a
+  // call to straddle (e.g. riding) or widen a stance; defaults to 0.
+  #ifndef (sk_splay) #declare sk_splay = 0; #end
   #declare sk_HiL = sk_Pelvis + <-SK_hipW,0,0>;  #declare sk_HiR = sk_Pelvis + <SK_hipW,0,0>;
-  #declare sk_KnL = sk_HiL + vrotate(<0,-SK_thigh,0>, <hipLp,0,0>);
-  #declare sk_KnR = sk_HiR + vrotate(<0,-SK_thigh,0>, <hipRp,0,0>);
-  #declare sk_FtL = sk_KnL + vrotate(<0,-SK_shin,0>, <hipLp+kneeL,0,0>);
-  #declare sk_FtR = sk_KnR + vrotate(<0,-SK_shin,0>, <hipRp+kneeR,0,0>);
+  #declare sk_KnL = sk_HiL + vrotate(<0,-SK_thigh,0>, <hipLp,0, sk_splay>);
+  #declare sk_KnR = sk_HiR + vrotate(<0,-SK_thigh,0>, <hipRp,0,-sk_splay>);
+  #declare sk_FtL = sk_KnL + vrotate(<0,-SK_shin,0>, <hipLp+kneeL,0, sk_splay>);
+  #declare sk_FtR = sk_KnR + vrotate(<0,-SK_shin,0>, <hipRp+kneeR,0,-sk_splay>);
   #declare sk_lean = lean;  #declare sk_headTilt = headTilt;
 #end
 
