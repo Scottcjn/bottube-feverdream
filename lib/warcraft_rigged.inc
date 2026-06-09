@@ -110,18 +110,19 @@
 // ---- HORSE: blob quadruped (faces -z). gallop (0..1) animates the legs ----
 #macro Horse(Pos, faceDeg, gallop)
   #local g = gallop*2*pi;
-  #local fL = sin(g)*22;  #local fR = sin(g+pi)*22;   // front legs swing
-  #local bL = sin(g+pi)*22; #local bR = sin(g)*22;    // back legs (diagonal)
+  #local fL = sin(g)*32;  #local fR = sin(g)*32;        // front legs (gallop, together)
+  #local bL = sin(g+2.4)*32; #local bR = sin(g+2.4)*32; // back legs (offset = bound)
+  #local bob = abs(sin(g))*0.14;                        // gallop bounce
   union {
     blob {
       threshold 0.6
       sphere { <0,1.55,0>, 0.56, 1.1 } sphere { <0,1.55,-0.7>, 0.5, 1.0 } sphere { <0,1.55,0.72>, 0.5, 1.0 }
       cylinder { <0,1.65,-1.05>, <0,2.45,-1.65>, 0.28, 0.9 } sphere { <0,2.55,-1.82>, 0.30, 1.0 }
       cylinder { <0,2.5,-1.9>, <0,2.35,-2.28>, 0.15, 0.8 }
-      cylinder { <-0.34,1.45,-0.85> + vrotate(<0,0,0>,<0,0,0>), <-0.40,0.12,-0.85> + <fL*0.01,0,0>, 0.15, 0.85 }
-      cylinder { < 0.34,1.45,-0.85>, < 0.40,0.12,-0.85> + <fR*0.01,0,0>, 0.15, 0.85 }
-      cylinder { <-0.34,1.45,0.85>, <-0.40,0.12,0.85> + <bL*0.01,0,0>, 0.15, 0.85 }
-      cylinder { < 0.34,1.45,0.85>, < 0.40,0.12,0.85> + <bR*0.01,0,0>, 0.15, 0.85 }
+      cylinder { <-0.34,1.45,-0.85>, <-0.34,1.45,-0.85>+vrotate(<0,-1.33,0>,<fL,0,0>), 0.15, 0.85 }
+      cylinder { < 0.34,1.45,-0.85>, < 0.34,1.45,-0.85>+vrotate(<0,-1.33,0>,<fR,0,0>), 0.15, 0.85 }
+      cylinder { <-0.34,1.45,0.85>, <-0.34,1.45,0.85>+vrotate(<0,-1.33,0>,<bL,0,0>), 0.15, 0.85 }
+      cylinder { < 0.34,1.45,0.85>, < 0.34,1.45,0.85>+vrotate(<0,-1.33,0>,<bR,0,0>), 0.15, 0.85 }
       texture { RG_Horse }
     }
     cone { <0,1.7,1.05>, 0.13, <0,0.9,1.7>, 0.0 texture { RG_HrDk } }       // tail
@@ -130,6 +131,23 @@
     sphere { <-0.13,2.6,-2.02>, 0.05 texture { pigment{rgb 0.05} } } sphere { <0.13,2.6,-2.02>, 0.05 texture { pigment{rgb 0.05} } }
     cone { <-0.1,2.78,-1.78>, 0.05, <-0.12,2.95,-1.78>, 0.0 texture { RG_Horse } } // ears
     cone { < 0.1,2.78,-1.78>, 0.05, < 0.12,2.95,-1.78>, 0.0 texture { RG_Horse } }
+    translate <0, bob, 0>
+    rotate y*faceDeg translate Pos
+  }
+#end
+
+// ---- MOUNTED KNIGHT: galloping warhorse + seated lancer (couched lance) ----
+#macro MountedKnight(Pos, faceDeg, gallop)
+  #local bob = abs(sin(gallop*2*pi))*0.20;
+  union {
+    object { Horse(<0,0,0>, 0, gallop) scale 1.4 }
+    #declare sk_splay = 26;
+    SkeletonFootman(<0.1, 1.55+bob, 0>, 0, 8, 0,  -50,16,28,  -80,5,6,  6,-40, 6,-40)
+    #declare sk_splay = 0;
+    // couched lance (forward, -z) + steel head + red pennon
+    cylinder { <0.55,2.45+bob,0.2>, <0.55,2.25+bob,-3.0>, 0.06 texture { RG_Wood } }
+    cone { <0.55,2.25+bob,-3.0>, 0.11, <0.55,2.20+bob,-3.4>, 0.0 texture { RG_Steel } }
+    box { <0.45,2.30+bob,-0.7>, <0.65,2.62+bob,-0.45> texture { RG_Red } }
     rotate y*faceDeg translate Pos
   }
 #end
