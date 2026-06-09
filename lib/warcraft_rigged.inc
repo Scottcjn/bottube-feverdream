@@ -67,3 +67,39 @@
     rotate y*faceDeg translate Pos
   }
 #end
+
+#declare RG_Leather = Tex_Worn(rgb <0.50,0.36,0.20>, rgb <0.36,0.24,0.12>)
+#declare RG_Green   = Tex_Worn(rgb <0.18,0.42,0.18>, rgb <0.12,0.30,0.12>)
+
+// ---- ARCHER: rigged bowman. draw (0..1) pulls the string; flight>0 looses ----
+#macro SkeletonArcher(Pos, faceDeg, draw, flight)
+  // archery stance: left arm out (bow), right arm bent (draw), feet apart
+  SK_Joints(6, 0,  -78,6,14,  -34,12,82,  14,-8, -14,-8)
+  union {
+    SK_BodyBlob(rgb <0.30,0.50,0.26>, 1.0)
+    SK_Eyes()
+    // little green hood
+    difference { sphere { sk_Head+<0,0.04,0.04>, 0.37 } box { sk_Head+<-0.5,-0.1,-0.55>, sk_Head+<0.5,0.5,0.0> } texture { RG_Green } }
+    // bow on the left hand (curved limbs + grip)
+    #local BH = sk_HaL;
+    #local BowTop = BH + <0, 0.92, 0.16>;  #local BowBot = BH + <0,-0.92, 0.16>;
+    #local BowMid1 = BH + <0, 0.5, 0.02>;  #local BowMid2 = BH + <0,-0.5, 0.02>;
+    cylinder { BH, BowMid1, 0.05 texture { RG_Leather } } cylinder { BowMid1, BowTop, 0.04 texture { RG_Leather } }
+    cylinder { BH, BowMid2, 0.05 texture { RG_Leather } } cylinder { BowMid2, BowBot, 0.04 texture { RG_Leather } }
+    // bowstring pulled back to the nock by `draw`
+    #local Nock = BH + <0, 0, 0.16 + draw*0.62>;
+    cylinder { BowTop, Nock, 0.012 texture { pigment{rgb 0.92} } }
+    cylinder { Nock, BowBot, 0.012 texture { pigment{rgb 0.92} } }
+    // arrow: nocked at the string, or flying forward when loosed
+    #if (flight <= 0)
+      #local AB = Nock;  #local AT = Nock + <0,0,-1.15>;
+      cylinder { AB, AT, 0.028 texture { RG_Wood } } cone { AT, 0.06, AT+<0,0,-0.13>, 0.0 texture { RG_Steel } }
+      box { AB+<-0.10,-0.10,0.02>, AB+<0.10,0.10,0.06> texture { RG_Red } }   // fletching
+    #else
+      #local AB = BH + <0,0.05,-0.25 - flight>;  #local AT = AB + <0,0,-1.0>;
+      cylinder { AB, AT, 0.028 texture { RG_Wood } } cone { AT, 0.06, AT+<0,0,-0.13>, 0.0 texture { RG_Steel } }
+      box { AB+<-0.10,-0.10,0>, AB+<0.10,0.10,0.04> texture { RG_Red } }
+    #end
+    rotate y*faceDeg translate Pos
+  }
+#end
