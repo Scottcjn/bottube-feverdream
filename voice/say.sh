@@ -14,6 +14,7 @@ case "$P" in
   peon)     V="en+m6"; PI=68; SP=190; G=2 ;;   # high, eager grunt "work work"
   zergling) V="en+f5"; PI=86; SP=230; G=0 ;;   # shrill, fast skitter
   computer) V="en+croak"; PI=50; SP=150; G=6 ;;# AI/announcer
+  battlecruiser) V="en+m1"; PI=8; SP=112; G=10 ;; # deep, slow capital-ship AI "operational"
   *)        V="en+m3"; PI=50; SP=160; G=5 ;;
 esac
 espeak-ng -v "$V" -p "$PI" -s "$SP" -g "$G" -w "$OUT" "$TXT"
