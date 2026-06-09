@@ -10,6 +10,15 @@ HERE="$(cd "$(dirname "$0")" && pwd)"
 POV="${1:?usage: make_wc1_video.sh scene.pov out.mp4 [secs] [fps] [nw] [nh] [colors]}"
 OUT="${2:?out.mp4}"
 SECS="${3:-4}"; FPS="${4:-12}"; NW="${5:-240}"; NH="${6:-138}"; COLORS="${7:-64}"
+# validate every numeric arg as a bounded integer BEFORE any arithmetic expansion
+for _v in SECS FPS NW NH COLORS; do
+  case "${!_v}" in (*[!0-9]*|'') echo "error: $_v must be a non-negative integer (got '${!_v}')" >&2; exit 2;; esac
+done
+if ! { [ "$SECS" -ge 1 ] && [ "$SECS" -le 30 ] && [ "$FPS" -ge 1 ] && [ "$FPS" -le 60 ] \
+     && [ "$NW" -ge 16 ] && [ "$NW" -le 2000 ] && [ "$NH" -ge 16 ] && [ "$NH" -le 2000 ] \
+     && [ "$COLORS" -ge 2 ] && [ "$COLORS" -le 256 ]; }; then
+  echo "error: numeric arg out of range (SECS 1-30, FPS 1-60, NW/NH 16-2000, COLORS 2-256)" >&2; exit 2
+fi
 OW=$((NW*3)); OH=$((NH*3))           # nearest-neighbor upscale x3
 N=$((SECS*FPS))
 fdir="$HERE/frames/wc1_$(basename "${POV%.pov}")"; rm -rf "$fdir"; mkdir -p "$fdir" "$(dirname "$OUT")"

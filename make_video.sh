@@ -10,6 +10,12 @@ HERE="$(cd "$(dirname "$0")" && pwd)"
 PROMPT="${1:?usage: make_video.sh \"prompt\" out.mp4 [secs] [fps] [w] [h] [--crt]}"
 OUT="${2:?out.mp4 path}"
 SECS="${3:-6}"; FPS="${4:-20}"; W="${5:-1280}"; H="${6:-720}"
+for _v in SECS FPS W H; do
+  case "${!_v}" in (*[!0-9]*|'') echo "error: $_v must be a non-negative integer (got '${!_v}')" >&2; exit 2;; esac
+done
+{ [ "$SECS" -ge 1 ] && [ "$SECS" -le 30 ] && [ "$FPS" -ge 1 ] && [ "$FPS" -le 60 ] \
+  && [ "$W" -ge 64 ] && [ "$W" -le 3840 ] && [ "$H" -ge 64 ] && [ "$H" -le 2160 ]; } \
+  || { echo "error: numeric arg out of range" >&2; exit 2; }
 CRT=""; for a in "$@"; do [ "$a" = "--crt" ] && CRT="--crt"; done
 
 # stable-ish unique name without Date.now (use PID + prompt slug)

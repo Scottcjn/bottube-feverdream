@@ -15,6 +15,7 @@ case "$THEME" in
          "thud:0.8:0.6" "thud:2.2:0.6" "powerup:3.0:0.5" ) ;;
   space) BED=enginehum.wav
     EV=( "powerup:0.6:0.5" "laser:1.8:0.4" "laser:3.6:0.4" "boing:2.4:0.4" ) ;;
+  *) echo "error: unknown theme '$THEME' (use battle|build|space)" >&2; exit 2 ;;
 esac
 # build ffmpeg inputs + filtergraph
 ARGS=( -y -i "$IN" -stream_loop -1 -t "$DUR" -i "$S/$BED" )
