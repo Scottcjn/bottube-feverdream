@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: MIT
 # make_video_gpu.sh — GPU animation lane: render an orbiting retro-CGI mp4 on the
 # RTX 5070 node (Blender/Cycles + OptiX), encode with ffmpeg.
 #

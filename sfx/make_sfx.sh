@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: MIT
 # make_sfx.sh — synthesize a library of procedural retro sound effects with ffmpeg.
 # No samples, no API: pure oscillator/noise math -> sfx/*.wav. The audio analogue
 # of the deterministic-raytrace approach. Run once to (re)build the library.

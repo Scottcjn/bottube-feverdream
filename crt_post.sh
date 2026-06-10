@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: MIT
 # crt_post.sh — run a clip through a CRT/VHS degradation pass via ffmpeg.
 #   ./crt_post.sh in.mp4 out.mp4
 # Adds: mild chroma bleed, scanlines, slight noise, vignette, soft bloom.

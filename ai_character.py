@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: MIT
 """
 ai_character.py — prompt -> smooth blob/metaball character, the old-school way.
 

@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: MIT
 # add_voice.sh — mux a persona voice line onto a video (over any existing audio).
 #   ./voice/add_voice.sh in.mp4 out.mp4 <persona> "line" [delay_s]
 set -euo pipefail

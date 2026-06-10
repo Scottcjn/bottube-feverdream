@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """
 feverdream_provider.py — BoTTube video provider for retro-CGI shorts.
 

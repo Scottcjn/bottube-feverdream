@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: MIT
 # make_wc1_video.sh — render a POV-Ray scene as a Warcraft-1-style VGA pixel-art
 # clip: render frames, build ONE stable palette across all frames (no flicker),
 # nearest-neighbor pixelate + bayer-dither, encode. Synthesized from a tri-brain

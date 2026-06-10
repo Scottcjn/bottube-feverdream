@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """
 retro90s_blender.py — the retro90s.inc look library, ported to Blender/Cycles.
 

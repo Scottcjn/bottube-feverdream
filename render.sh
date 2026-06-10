@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: MIT
 # render.sh — render a single POV-Ray scene to a still image.
 #   ./render.sh scenes/foo.pov [width] [height] [draft|final]
 # CPU raytracer: uses all cores. On POWER8 that's 128 threads of vintage glory.

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """gpu_enable.py — force Blender Cycles onto the GPU (OptiX > CUDA).
 
 Run as a -P pre-script before your scene script / .blend render so Cycles never

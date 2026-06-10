@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """
 feverdream_rtc_blueprint.py — spend RTC to commission a retro-CGI "feverdream"
 video, rendered by the bottube-feverdream pipeline and published to BoTTube.

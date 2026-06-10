@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: MIT
 # make_video.sh — one-shot: plain-English prompt -> retro-CGI mp4.
 # This is the entry point BoTTube's feverdream provider calls.
 #

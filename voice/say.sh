@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: MIT
 # say.sh — voice engine: synthesize a persona-voiced line to a wav (offline,
 # espeak-ng — no API). Robotic timbre suits retro game/unit voices.
 #   ./voice/say.sh <persona> "line of text" out.wav

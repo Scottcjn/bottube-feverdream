@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """blender_anim.py — orbiting retro90s hero scene for the GPU animation lane.
 Animated sibling of scenes/blender_hero.py: a camera orbits the chrome/glass/
 plastic trio over a reflective checkerboard with fractal mountains.

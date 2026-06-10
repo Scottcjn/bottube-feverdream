@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: MIT
 # farm_animate.sh — split a POV-Ray animation across N ssh-reachable nodes
 #                   in parallel, rsync the frames back, and mux the final mp4.
 #

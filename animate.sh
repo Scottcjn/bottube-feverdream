@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: MIT
 # animate.sh — render a POV-Ray scene as an animation and mux to mp4.
 #
 #   ./animate.sh scenes/foo.pov [seconds] [fps] [width] [height] [--crt]

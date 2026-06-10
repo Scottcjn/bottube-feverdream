@@ -1,3 +1,5 @@
+[![BCOS Certified](https://img.shields.io/badge/BCOS-Certified-brightgreen?style=flat)](BCOS.md)
+
 # bottube-feverdream 🌀
 
 **AI-directed, GPU/CPU-rendered retro CGI** — the chrome-and-checkerboard

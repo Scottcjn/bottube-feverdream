@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """blender_hero.py — the retro90s hero scene, GPU lane (Blender/Cycles).
 Equivalent of scenes/demo_chrome_sunset.pov, built with retro90s_blender.
 

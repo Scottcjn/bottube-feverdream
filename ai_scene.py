@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: MIT
 """
 ai_scene.py — AI command-line control for the retro-cgi pipeline.
 

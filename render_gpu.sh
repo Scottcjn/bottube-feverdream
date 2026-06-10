@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: MIT
 # render_gpu.sh — Blender Cycles GPU render lane (the "speed" lane).
 #
 #   ./render_gpu.sh scene.py|scene.blend [frames] [node]

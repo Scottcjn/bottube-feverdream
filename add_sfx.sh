@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: MIT
 # add_sfx.sh — compose a procedural soundscape (engine-hum bed + timed SFX) onto a
 # video. Self-contained: all sound from sfx/*.wav (synthesized, no samples/API).
 #   ./add_sfx.sh in.mp4 out.mp4 [battle|build|space]

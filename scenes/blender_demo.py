@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """blender_demo.py — minimal Cycles scene to validate the GPU render lane.
 Run via: blender -b -P gpu_enable.py -P scenes/blender_demo.py
 gpu_enable.py (run first) forces Cycles onto the GPU. This builds a chrome
