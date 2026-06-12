@@ -31,13 +31,9 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "Rustchai
 try:
     from rustchain_sdk.wallet import RustChainWallet
 except ImportError:
-    # Fallback: try to import from installed package
-    try:
-        from rustchain_sdk.wallet import RustChainWallet
-    except ImportError:
-        RustChainWallet = None
-        print("⚠️  rustchain_sdk not found. Install with: pip install -e ../../Rustchain/sdk/python")
-        print("   Or ensure Rustchain repo is at ../Rustchain")
+    RustChainWallet = None
+    print("⚠️  rustchain_sdk not found. Install with: pip install -e ../../Rustchain/sdk/python")
+    print("   Or ensure Rustchain repo is at ../Rustchain")
 
 # Use the proper RustChain node URL (certificate is valid for this domain)
 NODE = os.environ.get("RUSTCHAIN_NODE_URL", "https://rustchain.org")
@@ -69,7 +65,15 @@ def fmt_time(epoch):
 
 
 def load_wallet(wallet_path: Path):
-    """Load wallet from JSON file, supporting both RustChain SDK format and legacy format."""
+    """Load wallet from JSON file, supporting RustChain SDK export format (seed_phrase).
+
+    Supported formats:
+    - RustChain SDK export: {"seed_phrase": [...], "derivation_path": "..."}
+    - Legacy encrypted keystore with "ciphertext", "salt", "nonce"
+    - Legacy JSON with "seed_phrase" inside
+
+    NOT supported: raw private_key/privkey hex strings (export seed phrase instead).
+    """
     with open(wallet_path) as f:
         keystore = json.load(f)
 
@@ -95,7 +99,6 @@ def load_wallet(wallet_path: Path):
                 iterations=keystore.get("iterations", 100000)
             )
             key = kdf.derive(password.encode())
-            from cryptography.hazmat.primitives.ciphers.aead import AESGCM
             wallet_data = json.loads(AESGCM(key).decrypt(nonce, ct, None))
         except ImportError:
             print("⛔ cryptography required for encrypted wallets")
@@ -224,11 +227,10 @@ def cmd_order(args):
         "transfer": transfer,
     }
 
-    if hasattr(args, "tier"):
-        order["tier"] = args.tier
-    if hasattr(args, "title") and args.title:
+    order["tier"] = args.tier
+    if args.title:
         order["title"] = args.title
-    if hasattr(args, "category") and args.category:
+    if args.category:
         order["category"] = args.category
 
     print(f"  Placing order...")
