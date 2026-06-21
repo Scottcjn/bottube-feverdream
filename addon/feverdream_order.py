@@ -120,9 +120,18 @@ def cmd_order(args):
         return 0
 
     # Create and sign transfer
+    try:
+        import rustchain_crypto
+    except ImportError:
+        try:
+            from rustchain_mcp import rustchain_crypto
+        except ImportError:
+            print("❌ rustchain_crypto not found. Please install rustchain-mcp.")
+            return 1
+
     nonce = str(int(time.time() * 1000))
     msg = f"{address}feverdream_studio{cost}{nonce}"
-    signature = sha256(msg + privkey)
+    signature = rustchain_crypto.sign_message(msg.encode('utf-8'), privkey)
 
     tx = {
         "from_address": address,
