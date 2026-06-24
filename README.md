@@ -1,4 +1,4 @@
-[![BCOS Certified](https://img.shields.io/badge/BCOS-Certified-brightgreen?style=flat)](BCOS.md)
+[![BCOS Certified](https://img.shields.io/badge/BCOS-Certified-brightgreen?style=flat)](BCOS.md) [![License: AGPL v3](https://img.shields.io/badge/License-AGPLv3-blue.svg)](LICENSE)
 
 # bottube-feverdream 🌀
 
@@ -130,4 +130,4 @@ No admin key, no fund-pulling — the buyer authorizes their own spend.
 
 ---
 
-Elyan Labs · powered by Elyan-class agents · MIT licensed
+Elyan Labs · powered by Elyan-class agents · AGPLv3 licensed
