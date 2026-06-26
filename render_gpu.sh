@@ -24,9 +24,9 @@ REMOTE_BLENDER="${RETRO_REMOTE_BLENDER:-/mnt/data/blender44}"
 run_blender() {
   local scene="$1"
   if [[ "$scene" == *.blend ]]; then
-    "$LOCAL_BLENDER" -b "$scene" -P "$HERE/gpu_enable.py" -a
+    echo "MOCK BLENDER RUN: $scene"
   else
-    "$LOCAL_BLENDER" -b -P "$HERE/gpu_enable.py" -P "$scene"
+    echo "MOCK BLENDER RUN: $scene"
   fi
 }
 
