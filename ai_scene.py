@@ -17,6 +17,8 @@ Backend is any OpenAI-compatible /v1/chat/completions endpoint.
 import argparse, json, os, re, subprocess, sys, time, urllib.request
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, HERE)
+from fd_validate import validate_scene   # pre-render macro-contract check
 LIB  = os.path.join(HERE, "lib")
 SCENES = os.path.join(HERE, "scenes")
 
@@ -192,6 +194,27 @@ def main():
             f.write(sdl)
         print(f"[ai] wrote {pov_path} ({len(sdl)} bytes, {time.time()-t0:.1f}s)",
               file=sys.stderr)
+
+        # Cheap contract check before the expensive raytrace: catch invented
+        # macros, wrong arg counts, redefinitions, and truncated output now, and
+        # feed the exact violations back to the model instead of burning a render.
+        vr = validate_scene(sdl, LIB)
+        for w in vr["warnings"]:
+            print(f"[ai] warn: {w}", file=sys.stderr)
+        if not vr["ok"]:
+            print("[ai] scene rejected before render:\n  " +
+                  "\n  ".join(vr["errors"]), file=sys.stderr)
+            if attempt <= args.retries:
+                user_prompt = (
+                    f"{args.prompt}\n\nYour previous scene was REJECTED before "
+                    "rendering for these contract violations:\n- "
+                    + "\n- ".join(vr["errors"])
+                    + "\n\nUse ONLY the library Retro_* macros with the exact argument "
+                      'counts, keep #include "retro90s.inc" as the first line, and '
+                      "balance every brace. Return ONLY corrected source.")
+                continue
+            print("[ai] giving up: scene never passed validation", file=sys.stderr)
+            sys.exit(1)
 
         if not args.render:
             print(pov_path); return
