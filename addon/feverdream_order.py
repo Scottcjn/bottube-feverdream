@@ -66,36 +66,30 @@ def cmd_order(args):
     with open(wallet_path) as f:
         keystore = json.load(f)
 
+    try:
+        import sys, os
+        sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", "Rustchain", "wallet"))
+        from rustchain_crypto import RustChainWallet
+    except ImportError:
+        print("❌ rustchain_crypto required. Please ensure the wallet package is available.")
+        return 1
+
     # Try to decrypt if encrypted
-    wallet_data = None
     if "ciphertext" in keystore:
         password = getpass.getpass("Wallet password: ")
         try:
-            from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
-            from cryptography.hazmat.primitives.ciphers.aead import AESGCM
-            from cryptography.hazmat.primitives import hashes
-            salt = bytes.fromhex(keystore["salt"])
-            nonce = bytes.fromhex(keystore["nonce"])
-            ct = bytes.fromhex(keystore["ciphertext"])
-            kdf = PBKDF2HMAC(algorithm=hashes.SHA256(), length=32, salt=salt, iterations=keystore.get("iterations",100000))
-            key = kdf.derive(password.encode())
-            wallet_data = json.loads(AESGCM(key).decrypt(nonce, ct, None))
-        except ImportError:
-            print("鉂?cryptography required for encrypted wallets")
-            return 1
+            wallet = RustChainWallet.from_encrypted(keystore, password)
         except Exception as e:
-            print(f"鉂?Decryption failed: {e}")
+            print(f"❌ Decryption failed: {e}")
             return 1
     else:
-        wallet_data = keystore
+        privkey = keystore.get("private_key") or keystore.get("privkey", "")
+        if not privkey:
+            print("❌ Wallet missing private key")
+            return 1
+        wallet = RustChainWallet.from_private_key(privkey)
 
-    address = wallet_data.get("address") or wallet_data.get("wallet", "")
-    privkey = wallet_data.get("private_key") or wallet_data.get("privkey", "")
-    pubkey = wallet_data.get("public_key") or wallet_data.get("pubkey", "")
-
-    if not address or not privkey:
-        print("鉂?Wallet missing address or private key")
-        return 1
+    address = wallet.address
 
     # Get quote
     print(f"\n馃幀 FeverDream Order")
@@ -119,33 +113,20 @@ def cmd_order(args):
         print(f"  Would POST order for: {args.prompt}")
         return 0
 
-    # Create and sign transfer
-    nonce = str(int(time.time() * 1000))
-    msg = f"{address}feverdream_studio{cost}{nonce}"
-    signature = sha256(msg + privkey)
+    # Create and sign transfer using wallet pkg
+    print(f"\n  Signing {cost:.4f} RTC transfer...")
+    try:
+        tx = wallet.sign_transaction("feverdream_studio", cost, "feverdream order")
+    except Exception as e:
+        print(f"❌ Signing failed: {e}")
+        return 1
 
-    tx = {
-        "from_address": address,
-        "to_address": "feverdream_studio",
-        "amount_rtc": cost,
-        "nonce": nonce,
-        "signature": signature,
-        "public_key": pubkey,
-    }
-
-    print(f"\n  Sending {cost:.4f} RTC...")
-    result = api_post("/wallet/transfer/signed", tx)
-    if "error" in result:
-        print(f"鈿?Transfer may still go through. Proceeding with order...")
-    else:
-        print(f"  鉁?Payment sent!")
-
-    # Place order
+    # Place order (the endpoint will forward the transfer)
     order = {
         "prompt": args.prompt,
-        "seconds": args.seconds,
+        "duration": args.seconds,
         "payer_address": address,
-        "tx_nonce": nonce,
+        "transfer": tx,
     }
 
     print(f"  Placing order...")
