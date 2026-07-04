@@ -36,9 +36,10 @@ if [ "$NODE" = "local" ]; then
 else
   echo ">> GPU render on $SSH_USER@$NODE (RTX 5070, $REMOTE_BLENDER)"
   # ship scene + helpers, render remotely, pull frames back
-  ssh "$SSH_USER@$NODE" 'mkdir -p ~/feverdream'
+  ssh "$SSH_USER@$NODE" 'mkdir -p ~/feverdream/lib'
   scp -q "$SCENE" "$HERE/gpu_enable.py" "$SSH_USER@$NODE:~/feverdream/"
-  ssh "$SSH_USER@$NODE" "cd ~/feverdream && $REMOTE_BLENDER -b -P gpu_enable.py -P $(basename "$SCENE")"
-  scp -q "$SSH_USER@$NODE:~/feverdream/output/*" "$HERE/output/" 2>/dev/null || true
+  scp -q "$HERE/lib/retro90s_blender.py" "$SSH_USER@$NODE:~/feverdream/lib/"
+  ssh "$SSH_USER@$NODE" "cd ~/feverdream && rm -rf output/anim && FD_FRAMES=$FRAMES $REMOTE_BLENDER -b -P gpu_enable.py -P $(basename "$SCENE")"
+  scp -qr "$SSH_USER@$NODE:~/feverdream/output" "$HERE/" 2>/dev/null || true
 fi
 echo ">> done"
