@@ -89,6 +89,8 @@ export RETRO_LLM_MODEL="qwen2.5-7b-instruct-q4_k_m-00001-of-00002.gguf"
 
 ```
 ai_scene.py        prompt -> POV-Ray scene (LLM, OpenAI-compatible backend)
+fd_validate.py     macro-contract check run before the raytrace (ai_scene.py
+                   calls it; `./fd_validate.py scene.pov` to check by hand)
 render.sh          single-frame still render (CPU)
 animate.sh         frame sequence -> mp4 (+ optional CRT/VHS post)
 crt_post.sh        standalone VHS/CRT degrade pass
